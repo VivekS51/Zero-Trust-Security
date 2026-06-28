@@ -1,0 +1,29 @@
+{
+  "users": [
+    {
+      "username": "officer.smith",
+      "password_hash": "$2b$12$REPLACE_WITH_YOUR_GENERATED_HASH",
+      "role": "Officer"
+    },
+    {
+      "username": "engineer.diaz",
+      "password_hash": "$2b$12$REPLACE_WITH_YOUR_GENERATED_HASH",
+      "role": "Engineer"
+    },
+    {
+      "username": "staff.nguyen",
+      "password_hash": "$2b$12$REPLACE_WITH_YOUR_GENERATED_HASH",
+      "role": "Staff"
+    },
+    {
+      "username": "admin.patel",
+      "password_hash": "$2b$12$REPLACE_WITH_YOUR_GENERATED_HASH",
+      "role": "Admin"
+    },
+    {
+      "username": "guest.test",
+      "password_hash": "$2b$12$REPLACE_WITH_YOUR_GENERATED_HASH",
+      "role": "Guest"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+    "source_zone": "guest_wifi",
+    "target_zone": "pos_payments",
+    "group_membership": [
+        "Guest-Wifi-Only"
+    ],
+    "required_group": "POS-Access"
+}
