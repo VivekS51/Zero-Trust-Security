@@ -2,27 +2,27 @@
   "users": [
     {
       "username": "officer.smith",
-      "password_hash": "$2b$12$REPLACE_WITH_YOUR_GENERATED_HASH",
+      "password_hash": "$2b$12$LnlJfvT/q0D8jcmK48K2c.c9YncKr4pXAJiex5aKsZgb6ivea.YNG",
       "role": "Officer"
     },
     {
       "username": "engineer.diaz",
-      "password_hash": "$2b$12$REPLACE_WITH_YOUR_GENERATED_HASH",
+      "password_hash": "$2b$12$2FccC8VWwno0aSFQBe6dsONXQRF5NZaaCNwW.2O4WwXryVfkfyljy",
       "role": "Engineer"
     },
     {
       "username": "staff.nguyen",
-      "password_hash": "$2b$12$REPLACE_WITH_YOUR_GENERATED_HASH",
+      "password_hash": "$2b$12$/Kro691MPSCnGw7ggneNCuPG0b6aC6yF5vUDV2.3VJKrjctZYjzUe",
       "role": "Staff"
     },
     {
       "username": "admin.patel",
-      "password_hash": "$2b$12$REPLACE_WITH_YOUR_GENERATED_HASH",
+      "password_hash": "$2b$12$KhMMowXJ3sRAgXDIjROwwOgLghwA4Y5aulA/5C9M/Rd6rALWmU.HC",
       "role": "Admin"
     },
     {
       "username": "guest.test",
-      "password_hash": "$2b$12$REPLACE_WITH_YOUR_GENERATED_HASH",
+      "password_hash": "$2b$12$0SQKnQsFV2ZB3bq97rNxgeo0OKyR7E1nhjp0omZ9VWvwANey5rAXy",
       "role": "Guest"
     }
   ]

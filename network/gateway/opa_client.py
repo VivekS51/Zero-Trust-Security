@@ -1,29 +1,26 @@
-import json
-import subprocess
+"""
+OPA REST Client
+Enterprise Version
+"""
 
+import requests
 
-POLICY_FILE = "policies/network/network_segmentation.rego"
+OPA_URL = "http://localhost:8181/v1/data/cruise/network/allow"
 
 
 def evaluate_policy(input_data):
+    payload = {
+        "input": input_data
+    }
 
-    with open("policy_input.json", "w") as f:
-        json.dump(input_data, f)
-
-    result = subprocess.run(
-        [
-            "opa",
-            "eval",
-            "-d",
-            POLICY_FILE,
-            "-i",
-            "policy_input.json",
-            "data.cruise.network.allow"
-        ],
-        capture_output=True,
-        text=True
+    response = requests.post(
+        OPA_URL,
+        json=payload,
+        timeout=5
     )
 
-    output = json.loads(result.stdout)
+    response.raise_for_status()
 
-    return output["result"][0]["expressions"][0]["value"]
+    result = response.json()
+
+    return result["result"]

@@ -1,12 +1,18 @@
-from flask import request
-from auth import create_token
-from session_manager import create_session
-from user_store import authenticate
 from flask import Blueprint
 from flask import jsonify
+from flask import request
+
+from auth import create_token
 from auth import verify_token
-from policy import authorize
+
+from session_manager import create_session
+
+from user_store import authenticate
+
 from proxy import forward_request
+
+from opa_client import evaluate_policy
+
 
 gateway = Blueprint(
     "gateway",
@@ -17,18 +23,22 @@ gateway = Blueprint(
 @gateway.get("/")
 def home():
 
-    return jsonify(
-        {
-            "project": "Zero Trust Cruise Platform",
-            "gateway": "ONLINE",
-            "version": "1.0"
-        }
-    )
+    return jsonify({
+        "project": "Zero Trust Cruise Platform",
+        "gateway": "ONLINE",
+        "version": "1.0"
+    })
+
 
 @gateway.post("/login")
 def login():
 
     data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "error": "Request body missing"
+        }), 400
 
     username = data.get("username")
     password = data.get("password")
@@ -36,7 +46,6 @@ def login():
     user = authenticate(username, password)
 
     if not user:
-
         return jsonify({
             "error": "Invalid username or password"
         }), 401
@@ -53,19 +62,25 @@ def login():
         "token": token,
         "role": user["role"]
     })
+
+
 def validate_request(resource):
 
     auth_header = request.headers.get("Authorization")
 
     if not auth_header:
         return None, (
-            jsonify({"error": "Authorization header missing"}),
+            jsonify({
+                "error": "Authorization header missing"
+            }),
             401,
         )
 
     if not auth_header.startswith("Bearer "):
         return None, (
-            jsonify({"error": "Invalid Authorization format"}),
+            jsonify({
+                "error": "Invalid Authorization format"
+            }),
             401,
         )
 
@@ -75,17 +90,58 @@ def validate_request(resource):
 
     if payload is None:
         return None, (
-            jsonify({"error": "Invalid or expired token"}),
+            jsonify({
+                "error": "Invalid or expired token"
+            }),
             401,
         )
 
-    if not authorize(payload["role"], resource):
+    group_mapping = {
+        "bridge": "Bridge-Systems-Access",
+        "pos": "POS-Access",
+        "crew": "Engine-OT-Access"
+    }
+
+    role_mapping = {
+        "Officer": [
+            "Bridge-Systems-Access"
+        ],
+        "Engineer": [
+            "Engine-OT-Access"
+        ],
+        "Staff": [
+            "POS-Access"
+        ],
+        "Admin": [
+            "Bridge-Systems-Access",
+            "Engine-OT-Access",
+            "POS-Access"
+        ]
+    }
+
+    policy_input = {
+        "source_zone": resource,
+        "target_zone": resource,
+        "group_membership": role_mapping.get(
+            payload["role"],
+            []
+        ),
+        "required_group": group_mapping[resource]
+    }
+
+    allowed = evaluate_policy(policy_input)
+
+    if not allowed:
         return None, (
-            jsonify({"error": "Access denied"}),
+            jsonify({
+                "error": "Access denied by OPA"
+            }),
             403,
         )
 
     return payload, None
+
+
 @gateway.get("/bridge")
 def bridge():
 
@@ -101,6 +157,8 @@ def bridge():
         "role": payload["role"],
         "backend": response
     }), status
+
+
 @gateway.get("/pos")
 def pos():
 
@@ -116,6 +174,8 @@ def pos():
         "role": payload["role"],
         "backend": response
     }), status
+
+
 @gateway.get("/crew")
 def crew():
 

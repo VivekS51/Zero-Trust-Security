@@ -17,6 +17,6 @@ for password, role in passwords.items():
         bcrypt.gensalt()
     )
 
-    print(f"{role}:")
+    print(role)
     print(hashed.decode())
     print()
