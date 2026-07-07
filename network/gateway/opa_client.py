@@ -1,11 +1,8 @@
-"""
-OPA REST Client
-Enterprise Version
-"""
-
 import requests
 
-OPA_URL = "http://localhost:8181/v1/data/cruise/network/allow"
+NETWORK_URL = "http://localhost:8181/v1/data/cruise/network/allow"
+GDPR_URL = "http://localhost:8181/v1/data/cruise/compliance/gdpr/allow"
+PCI_URL = "http://localhost:8181/v1/data/cruise/compliance/pci/allow"
 
 
 def evaluate_policy(input_data):
@@ -13,14 +10,22 @@ def evaluate_policy(input_data):
         "input": input_data
     }
 
-    response = requests.post(
-        OPA_URL,
+    network = requests.post(
+        NETWORK_URL,
         json=payload,
         timeout=5
-    )
+    ).json()["result"]
 
-    response.raise_for_status()
+    gdpr = requests.post(
+        GDPR_URL,
+        json=payload,
+        timeout=5
+    ).json()["result"]
 
-    result = response.json()
+    pci = requests.post(
+        PCI_URL,
+        json=payload,
+        timeout=5
+    ).json()["result"]
 
-    return result["result"]
+    return network and gdpr and pci

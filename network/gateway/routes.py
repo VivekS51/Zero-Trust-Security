@@ -1,6 +1,7 @@
 from flask import Blueprint
 from flask import jsonify
 from flask import request
+from authorization_context import build_authorization_context
 
 from auth import create_token
 from auth import verify_token
@@ -12,6 +13,7 @@ from user_store import authenticate
 from proxy import forward_request
 
 from opa_client import evaluate_policy
+from audit import log_event
 
 
 gateway = Blueprint(
@@ -96,40 +98,26 @@ def validate_request(resource):
             401,
         )
 
-    group_mapping = {
-        "bridge": "Bridge-Systems-Access",
-        "pos": "POS-Access",
-        "crew": "Engine-OT-Access"
-    }
+    policy_input = build_authorization_context(
+        payload,
+        resource
+    )
 
-    role_mapping = {
-        "Officer": [
-            "Bridge-Systems-Access"
-        ],
-        "Engineer": [
-            "Engine-OT-Access"
-        ],
-        "Staff": [
-            "POS-Access"
-        ],
-        "Admin": [
-            "Bridge-Systems-Access",
-            "Engine-OT-Access",
-            "POS-Access"
-        ]
-    }
-
-    policy_input = {
-        "source_zone": resource,
-        "target_zone": resource,
-        "group_membership": role_mapping.get(
-            payload["role"],
-            []
-        ),
-        "required_group": group_mapping[resource]
-    }
+    log_event({
+        "user": payload["username"],
+        "resource": resource,
+        "action": "Authorization Request",
+        "device": policy_input["device"],
+        "risk": policy_input["risk"]
+    })
 
     allowed = evaluate_policy(policy_input)
+
+    log_event({
+        "user": payload["username"],
+        "resource": resource,
+        "decision": "ALLOW" if allowed else "DENY"
+    })
 
     if not allowed:
         return None, (

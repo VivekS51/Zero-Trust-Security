@@ -1,0 +1,8 @@
+{"user": "officer.smith", "resource": "bridge", "action": "Authorization Request", "device": {"managed": true, "encrypted": true, "os": "Windows 11", "risk": "Low"}, "risk": {"score": 5, "level": "Low"}, "timestamp": "2026-07-01T11:54:11.378063"}
+{"user": "officer.smith", "resource": "bridge", "decision": "ALLOW", "timestamp": "2026-07-01T11:54:15.480635"}
+{"user": "officer.smith", "resource": "pos", "action": "Authorization Request", "device": {"managed": true, "encrypted": true, "os": "Windows 11", "risk": "Low"}, "risk": {"score": 5, "level": "Low"}, "timestamp": "2026-07-01T11:57:52.026068"}
+{"user": "officer.smith", "resource": "pos", "decision": "DENY", "timestamp": "2026-07-01T11:57:58.151140"}
+{"user": "officer.smith", "resource": "pos", "action": "Authorization Request", "device": {"managed": true, "encrypted": true, "os": "Windows 11", "risk": "Low"}, "risk": {"score": 5, "level": "Low"}, "timestamp": "2026-07-01T11:58:35.500305"}
+{"user": "officer.smith", "resource": "pos", "decision": "DENY", "timestamp": "2026-07-01T11:58:41.669103"}
+{"user": "staff.nguyen", "resource": "pos", "action": "Authorization Request", "device": {"managed": true, "encrypted": false, "os": "Windows 10", "risk": "Medium"}, "risk": {"score": 55, "level": "Medium"}, "timestamp": "2026-07-01T11:58:51.500723"}
+{"user": "staff.nguyen", "resource": "pos", "decision": "DENY", "timestamp": "2026-07-01T11:58:57.661564"}

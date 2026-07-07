@@ -1,0 +1,10 @@
+{
+    "device": {
+        "managed": true,
+        "encrypted": true
+    },
+    "user": {
+        "pci_trained": true,
+        "mfa": true
+    }
+}
