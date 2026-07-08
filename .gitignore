@@ -4,3 +4,12 @@ __pycache__/
 .vscode/
 .idea/
 .env
+# Runtime logs
+logs/*.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment secrets
+.env
