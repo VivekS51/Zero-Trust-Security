@@ -1,17 +1,15 @@
-from flask import Blueprint
-from flask import jsonify
-from flask import request
+"""
+Zero Trust Cruise Platform
+Gateway Routes
+"""
+
+from flask import Blueprint, jsonify, request
+
 from authorization_context import build_authorization_context
-
-from auth import create_token
-from auth import verify_token
-
+from auth import create_token, verify_token
 from session_manager import create_session
-
 from user_store import authenticate
-
 from proxy import forward_request
-
 from opa_client import evaluate_policy
 from audit import log_event
 
@@ -35,7 +33,7 @@ def home():
 @gateway.post("/login")
 def login():
 
-    data = request.get_json()
+    data = request.get_json(silent=True)
 
     if not data:
         return jsonify({
@@ -45,7 +43,15 @@ def login():
     username = data.get("username")
     password = data.get("password")
 
-    user = authenticate(username, password)
+    if not username or not password:
+        return jsonify({
+            "error": "Username and password are required"
+        }), 400
+
+    user = authenticate(
+        username,
+        password
+    )
 
     if not user:
         return jsonify({
@@ -57,7 +63,9 @@ def login():
         role=user["role"]
     )
 
-    create_session(user["username"])
+    create_session(
+        user["username"]
+    )
 
     return jsonify({
         "message": "Login Successful",
@@ -68,7 +76,9 @@ def login():
 
 def validate_request(resource):
 
-    auth_header = request.headers.get("Authorization")
+    auth_header = request.headers.get(
+        "Authorization"
+    )
 
     if not auth_header:
         return None, (
@@ -86,7 +96,18 @@ def validate_request(resource):
             401,
         )
 
-    token = auth_header.split(" ")[1]
+    token = auth_header.split(
+        " ",
+        1
+    )[1].strip()
+
+    if not token:
+        return None, (
+            jsonify({
+                "error": "Bearer token missing"
+            }),
+            401,
+        )
 
     payload = verify_token(token)
 
@@ -103,20 +124,36 @@ def validate_request(resource):
         resource
     )
 
+    # Audit the authorization request.
     log_event({
+        "event_type": "authorization_request",
         "user": payload["username"],
+        "role": payload["role"],
         "resource": resource,
-        "action": "Authorization Request",
+        "action": "access",
         "device": policy_input["device"],
         "risk": policy_input["risk"]
     })
 
-    allowed = evaluate_policy(policy_input)
+    # OPA evaluates the authorization policy.
+    allowed = evaluate_policy(
+        policy_input
+    )
 
+    # Audit the authorization decision.
     log_event({
+        "event_type": "authorization_decision",
         "user": payload["username"],
+        "role": payload["role"],
         "resource": resource,
-        "decision": "ALLOW" if allowed else "DENY"
+        "action": "access",
+        "decision": (
+            "ALLOW"
+            if allowed
+            else "DENY"
+        ),
+        "risk_level": policy_input["risk"]["level"],
+        "risk_score": policy_input["risk"]["score"]
     })
 
     if not allowed:
@@ -133,12 +170,16 @@ def validate_request(resource):
 @gateway.get("/bridge")
 def bridge():
 
-    payload, error = validate_request("bridge")
+    payload, error = validate_request(
+        "bridge"
+    )
 
     if error:
         return error
 
-    response, status = forward_request("bridge")
+    response, status = forward_request(
+        "bridge"
+    )
 
     return jsonify({
         "user": payload["username"],
@@ -150,12 +191,16 @@ def bridge():
 @gateway.get("/pos")
 def pos():
 
-    payload, error = validate_request("pos")
+    payload, error = validate_request(
+        "pos"
+    )
 
     if error:
         return error
 
-    response, status = forward_request("pos")
+    response, status = forward_request(
+        "pos"
+    )
 
     return jsonify({
         "user": payload["username"],
@@ -167,12 +212,16 @@ def pos():
 @gateway.get("/crew")
 def crew():
 
-    payload, error = validate_request("crew")
+    payload, error = validate_request(
+        "crew"
+    )
 
     if error:
         return error
 
-    response, status = forward_request("crew")
+    response, status = forward_request(
+        "crew"
+    )
 
     return jsonify({
         "user": payload["username"],
